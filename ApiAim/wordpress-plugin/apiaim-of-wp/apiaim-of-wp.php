@@ -2,23 +2,27 @@
 /**
  * Plugin Name: ApiAim of wp
  * Description: 同步 WooCommerce 订单到 ApiAim 主站
- * Version: 1.0.4
+ * Version: 1.0.5
  * Author: ApiAim
  * Text Domain: apiaim-wp
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('APIAIM_WP_VERSION', '1.0.4');
+define('APIAIM_WP_VERSION', '1.0.5');
 define('APIAIM_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
-require_once APIAIM_WP_PLUGIN_DIR . 'lib/plugin-update-checker.php';
-add_action('init', function() {
-    $updateChecker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
-        'https://github.com/szyijiu/apiaim-of-wp',
-        __FILE__
-    );
-});
+$puc_file = APIAIM_WP_PLUGIN_DIR . 'lib/plugin-update-checker.php';
+if (file_exists($puc_file)) {
+    require_once $puc_file;
+    add_action('init', function() {
+        $updateChecker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+            'https://github.com/szyijiu/apiaim-of-wp',
+            __FILE__
+        );
+        $updateChecker->getVcsApi()->enableReleaseAssets();
+    });
+}
 
 function apiaim_wp_check_dependencies() {
     if (!class_exists('WooCommerce')) {
@@ -38,10 +42,11 @@ add_filter('cron_schedules', function($schedules) {
     return $schedules;
 });
 
-require_once APIAIM_WP_PLUGIN_DIR . 'includes/class-api-client.php';
-require_once APIAIM_WP_PLUGIN_DIR . 'includes/class-order-handler.php';
-require_once APIAIM_WP_PLUGIN_DIR . 'includes/class-admin-settings.php';
-require_once APIAIM_WP_PLUGIN_DIR . 'includes/class-sync-queue.php';
+$inc_files = ['class-api-client.php', 'class-order-handler.php', 'class-admin-settings.php', 'class-sync-queue.php'];
+foreach ($inc_files as $f) {
+    $path = APIAIM_WP_PLUGIN_DIR . 'includes/' . $f;
+    if (file_exists($path)) require_once $path;
+}
 
 register_activation_hook(__FILE__, ['Apiaim_Wp_Order_Handler', 'activate']);
 register_deactivation_hook(__FILE__, ['Apiaim_Wp_Order_Handler', 'deactivate']);
@@ -78,3 +83,19 @@ function apiaim_wp_ajax_ping() {
         wp_send_json(['success' => false, 'code' => 50000, 'message' => '服务器内部错误: ' . $e->getMessage()]);
     }
 }
+
+add_filter('auto_update_plugin', function($update, $item) {
+    if (isset($item->plugin) && $item->plugin === plugin_basename(__FILE__)) {
+        return true;
+    }
+    return $update;
+}, 10, 2);
+
+add_action('upgrader_process_complete', function($upgrader, $options) {
+    if ($options['type'] === 'plugin' && isset($options['plugins'])) {
+        $basename = plugin_basename(__FILE__);
+        if (in_array($basename, $options['plugins'])) {
+            delete_transient('update_plugins');
+        }
+    }
+}, 10, 2);

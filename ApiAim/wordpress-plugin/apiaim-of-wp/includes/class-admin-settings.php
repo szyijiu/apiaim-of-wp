@@ -4,6 +4,7 @@ if (!defined('ABSPATH')) exit;
 class Apiaim_Wp_Admin_Settings {
 
     public static function add_menu() {
+        if (!class_exists('WooCommerce')) return;
         add_submenu_page(
             'woocommerce',
             'ApiAim 同步设置',
@@ -89,7 +90,7 @@ class Apiaim_Wp_Admin_Settings {
                     },
                     success: function(response) {
                         if (response.success) {
-                            result.html('<span style="color: green;">连接成功 (服务器时间: ' + response.server_time + ')</span>');
+                            result.html('<span style="color: green;">连接成功: ' + response.message + '</span>');
                         } else {
                             result.html('<span style="color: red;">连接失败: ' + response.message + '</span>');
                         }
