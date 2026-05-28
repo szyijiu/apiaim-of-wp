@@ -1,42 +1,33 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-class Aigogogo_Apiaim_Admin_Settings {
+class Apiaim_Wp_Admin_Settings {
 
-    /**
-     * 添加菜单
-     */
     public static function add_menu() {
         add_submenu_page(
             'woocommerce',
             'ApiAim 同步设置',
             'ApiAim 同步',
             'manage_woocommerce',
-            'aigogogo-apiaim-settings',
+            'apiaim-wp-settings',
             [__CLASS__, 'render_settings_page']
         );
     }
 
-    /**
-     * 注册设置项
-     */
     public static function register_settings() {
-        register_setting('aigogogo_apiaim_settings', 'apiaim_api_url');
-        register_setting('aigogogo_apiaim_settings', 'apiaim_api_key');
-        register_setting('aigogogo_apiaim_settings', 'apiaim_timeout');
-        register_setting('aigogogo_apiaim_settings', 'apiaim_retry_attempts');
-        register_setting('aigogogo_apiaim_settings', 'apiaim_retry_interval');
+        register_setting('apiaim_wp_settings', 'apiaim_api_url');
+        register_setting('apiaim_wp_settings', 'apiaim_api_key');
+        register_setting('apiaim_wp_settings', 'apiaim_timeout');
+        register_setting('apiaim_wp_settings', 'apiaim_retry_attempts');
+        register_setting('apiaim_wp_settings', 'apiaim_retry_interval');
     }
 
-    /**
-     * 渲染设置页面
-     */
     public static function render_settings_page() {
         ?>
         <div class="wrap">
             <h1>ApiAim 同步设置</h1>
             <form method="post" action="options.php">
-                <?php settings_fields('aigogogo_apiaim_settings'); ?>
+                <?php settings_fields('apiaim_wp_settings'); ?>
 
                 <table class="form-table">
                     <tr>
@@ -98,13 +89,13 @@ class Aigogogo_Apiaim_Admin_Settings {
                     },
                     success: function(response) {
                         if (response.success) {
-                            result.html('<span style="color: green;">✅ 连接成功 (服务器时间: ' + response.server_time + ')</span>');
+                            result.html('<span style="color: green;">连接成功 (服务器时间: ' + response.server_time + ')</span>');
                         } else {
-                            result.html('<span style="color: red;">❌ 连接失败: ' + response.message + '</span>');
+                            result.html('<span style="color: red;">连接失败: ' + response.message + '</span>');
                         }
                     },
                     error: function() {
-                        result.html('<span style="color: red;">❌ 请求失败</span>');
+                        result.html('<span style="color: red;">请求失败</span>');
                     },
                     complete: function() {
                         btn.prop('disabled', false);
@@ -116,4 +107,3 @@ class Aigogogo_Apiaim_Admin_Settings {
         <?php
     }
 }
-
