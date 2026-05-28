@@ -1,6 +1,8 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
+if (!class_exists('Apiaim_Wp_Order_Handler')):
+
 class Apiaim_Wp_Order_Handler {
 
     public static function activate() {
@@ -99,3 +101,5 @@ class Apiaim_Wp_Order_Handler {
         echo '</div>';
     }
 }
+
+endif;

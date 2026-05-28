@@ -1,6 +1,8 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
+if (!class_exists('Apiaim_Wp_Client')):
+
 class Apiaim_Wp_Client {
     private $base_url;
     private $api_key;
@@ -72,3 +74,5 @@ class Apiaim_Wp_Client {
         return $result;
     }
 }
+
+endif;

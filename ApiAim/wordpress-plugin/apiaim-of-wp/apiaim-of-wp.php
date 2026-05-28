@@ -2,25 +2,28 @@
 /**
  * Plugin Name: ApiAim of wp
  * Description: 同步 WooCommerce 订单到 ApiAim 主站
- * Version: 1.0.5
+ * Version: 1.0.6
  * Author: ApiAim
  * Text Domain: apiaim-wp
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('APIAIM_WP_VERSION', '1.0.5');
+define('APIAIM_WP_VERSION', '1.0.6');
 define('APIAIM_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
 $puc_file = APIAIM_WP_PLUGIN_DIR . 'lib/plugin-update-checker.php';
 if (file_exists($puc_file)) {
     require_once $puc_file;
     add_action('init', function() {
-        $updateChecker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
-            'https://github.com/szyijiu/apiaim-of-wp',
-            __FILE__
-        );
-        $updateChecker->getVcsApi()->enableReleaseAssets();
+        try {
+            $updateChecker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+                'https://github.com/szyijiu/apiaim-of-wp',
+                __FILE__
+            );
+        } catch (Exception $e) {
+            error_log('[ApiAim WP] PUC init error: ' . $e->getMessage());
+        }
     });
 }
 
@@ -92,7 +95,7 @@ add_filter('auto_update_plugin', function($update, $item) {
 }, 10, 2);
 
 add_action('upgrader_process_complete', function($upgrader, $options) {
-    if ($options['type'] === 'plugin' && isset($options['plugins'])) {
+    if (isset($options['type']) && $options['type'] === 'plugin' && isset($options['plugins'])) {
         $basename = plugin_basename(__FILE__);
         if (in_array($basename, $options['plugins'])) {
             delete_transient('update_plugins');

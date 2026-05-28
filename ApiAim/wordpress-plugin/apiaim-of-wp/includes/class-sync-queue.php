@@ -1,6 +1,8 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
+if (!class_exists('Apiaim_Wp_Sync_Queue')):
+
 class Apiaim_Wp_Sync_Queue {
 
     public static function add($order_id, $error_code = 0) {
@@ -102,3 +104,5 @@ class Apiaim_Wp_Sync_Queue {
         wp_mail($admin_email, $subject, $message);
     }
 }
+
+endif;

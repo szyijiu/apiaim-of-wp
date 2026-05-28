@@ -1,6 +1,8 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
+if (!class_exists('Apiaim_Wp_Admin_Settings')):
+
 class Apiaim_Wp_Admin_Settings {
 
     public static function add_menu() {
@@ -108,3 +110,5 @@ class Apiaim_Wp_Admin_Settings {
         <?php
     }
 }
+
+endif;
