@@ -2,21 +2,20 @@
 /**
  * Plugin Name: ApiAim of wp
  * Description: 同步 WooCommerce 订单到 ApiAim 主站
- * Version: 1.0.8
+ * Version: 1.0.9
  * Author: ApiAim
  * Text Domain: apiaim-wp
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('APIAIM_WP_VERSION', '1.0.8');
+define('APIAIM_WP_VERSION', '1.0.9');
 define('APIAIM_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
-// Try to migrate active_plugins entry from old folder name (apiaim-of-wp) to this folder
 add_action('plugins_loaded', function() {
     $expected = plugin_basename(__FILE__);
     $active = get_option('active_plugins', []);
-    $old_entries = ['apiaim-of-wp/apiaim-of-wp.php', 'aigogogo-apiaim-sync/aigogogo-apiaim-sync.php'];
+    $old_entries = ['aigogogo-apiaim-sync/aigogogo-apiaim-sync.php'];
     $changed = false;
     foreach ($active as &$p) {
         if (in_array($p, $old_entries) && $p !== $expected) {
@@ -24,6 +23,7 @@ add_action('plugins_loaded', function() {
             $changed = true;
         }
     }
+    unset($p);
     if ($changed) update_option('active_plugins', $active);
 });
 
