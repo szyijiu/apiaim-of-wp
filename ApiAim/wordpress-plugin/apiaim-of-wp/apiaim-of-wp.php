@@ -2,14 +2,14 @@
 /**
  * Plugin Name: ApiAim of wp
  * Description: 同步 WooCommerce 订单到 ApiAim 主站
- * Version: 1.0.7
+ * Version: 1.0.8
  * Author: ApiAim
  * Text Domain: apiaim-wp
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('APIAIM_WP_VERSION', '1.0.7');
+define('APIAIM_WP_VERSION', '1.0.8');
 define('APIAIM_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
 $puc_file = APIAIM_WP_PLUGIN_DIR . 'lib/plugin-update-checker.php';

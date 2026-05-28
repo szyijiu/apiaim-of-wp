@@ -85,7 +85,7 @@ class Apiaim_Wp_Admin_Settings {
                 result.text('测试中...');
 
                 jQuery.ajax({
-                    url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                    url: '<?php echo admin_url('admin-ajax.php', 'admin'); ?>',
                     type: 'POST',
                     data: {
                         action: 'apiaim_ping_test'
