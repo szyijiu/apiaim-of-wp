@@ -1,16 +1,16 @@
 <?php
 /**
- * Plugin Name: Aigogogo ApiAim Sync
+ * Plugin Name: ApiAim of wp
  * Description: 同步 WooCommerce 订单到 ApiAim 主站
- * Version: 1.0.1
- * Author: Aigogogo
+ * Version: 1.0.2
+ * Author: ApiAim
  * Text Domain: aigogogo-apiaim-sync
  */
 
 if (!defined('ABSPATH')) exit;
 
 // 常量定义
-define('AIGOGOGO_APIAIM_VERSION', '1.0.1');
+define('AIGOGOGO_APIAIM_VERSION', '1.0.2');
 define('AIGOGOGO_APIAIM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
 // 加载 GitHub 自动更新库
