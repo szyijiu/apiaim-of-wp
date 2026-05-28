@@ -2,14 +2,14 @@
 /**
  * Plugin Name: ApiAim of wp
  * Description: 同步 WooCommerce 订单到 ApiAim 主站
- * Version: 1.0.6
+ * Version: 1.0.7
  * Author: ApiAim
  * Text Domain: apiaim-wp
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('APIAIM_WP_VERSION', '1.0.6');
+define('APIAIM_WP_VERSION', '1.0.7');
 define('APIAIM_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
 $puc_file = APIAIM_WP_PLUGIN_DIR . 'lib/plugin-update-checker.php';
@@ -21,6 +21,7 @@ if (file_exists($puc_file)) {
                 'https://github.com/szyijiu/apiaim-of-wp',
                 __FILE__
             );
+            $updateChecker->getVcsApi()->enableReleaseAssets('/\.zip$/i');
         } catch (Exception $e) {
             error_log('[ApiAim WP] PUC init error: ' . $e->getMessage());
         }
