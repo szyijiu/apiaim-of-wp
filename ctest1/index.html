@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NexusAI Tokens 分发平台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+  <div class="scanline"></div>
+
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="#" class="nav-logo">
+        <span class="logo-icon">◆</span>
+        <span class="logo-text">Nexus<span class="logo-accent">AI</span></span>
+      </a>
+      <ul class="nav-links">
+        <li><a href="#hero" class="active">首页</a></li>
+        <li><a href="#data">数据</a></li>
+        <li><a href="#features">功能</a></li>
+        <li><a href="#footer">联系</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="#" class="btn btn-ghost">登录</a>
+        <a href="#" class="btn btn-primary">注册</a>
+      </div>
+      <button class="nav-toggle" aria-label="菜单">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <section id="hero" class="hero">
+    <div class="hero-content">
+      <p class="hero-badge">⚡ 下一代 AI Tokens 分发基础设施</p>
+      <h1 class="hero-title">
+        <span class="title-line">高效稳定的</span>
+        <span class="title-line title-gradient">AI Tokens</span>
+        <span class="title-line">分发平台</span>
+      </h1>
+      <p class="hero-subtitle">为开发者与企业提供高性能、低延迟的 AI 推理 tokens 分发服务，<br>赋能每一个智能应用</p>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <span class="stat-number" data-target="999999">0</span>
+          <span class="stat-label">已分发 Tokens</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-number" data-target="5000">0</span>
+          <span class="stat-label">服务开发者</span>
+        </div>
+        <div class="hero-stat">
+          <span class="stat-number" data-target="999">0</span>
+          <span class="stat-label">企业客户</span>
+        </div>
+      </div>
+      <div class="hero-actions">
+        <a href="#" class="btn btn-primary btn-lg">立即开始 <span class="btn-arrow">→</span></a>
+        <a href="#" class="btn btn-outline btn-lg">了解详情</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>向下滚动</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
+
+  <section id="data" class="data-section">
+    <div class="section-header">
+      <h2 class="section-title">核心 <span class="text-gradient">数据</span></h2>
+      <p class="section-desc">实时监控平台运行状态，掌握每一刻的服务能力</p>
+    </div>
+    <div class="data-cards">
+      <div class="data-card">
+        <div class="card-icon">⚡</div>
+        <div class="card-value"><span class="counter" data-target="99.99">0</span><span class="unit">%</span></div>
+        <div class="card-label">服务可用率</div>
+        <div class="card-bar"><div class="card-bar-fill" style="width: 99.9%"></div></div>
+      </div>
+      <div class="data-card">
+        <div class="card-icon">🌐</div>
+        <div class="card-value"><span class="counter" data-target="50">0</span><span class="unit">ms</span></div>
+        <div class="card-label">平均响应延迟</div>
+        <div class="card-bar"><div class="card-bar-fill" style="width: 95%"></div></div>
+      </div>
+      <div class="data-card">
+        <div class="card-icon">🚀</div>
+        <div class="card-value"><span class="counter" data-target="100000">0</span><span class="unit">+</span></div>
+        <div class="card-label">每秒请求处理</div>
+        <div class="card-bar"><div class="card-bar-fill" style="width: 85%"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="features" class="features-section">
+    <div class="section-header">
+      <h2 class="section-title">平台 <span class="text-gradient">功能</span></h2>
+      <p class="section-desc">全方位的 tokens 分发解决方案，满足您的所有需求</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🔀</div>
+        <h3 class="feature-title">智能路由</h3>
+        <p class="feature-desc">基于 AI 驱动的智能路由算法，自动选择最优节点，确保请求低延迟高可用</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3 class="feature-title">实时监控</h3>
+        <p class="feature-desc">全方位监控面板，实时查看 tokens 消耗、延迟分布与系统健康状态</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <h3 class="feature-title">安全加密</h3>
+        <p class="feature-desc">端到端加密传输，多层鉴权机制，保障您的 API 密钥与数据安全</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚖️</div>
+        <h3 class="feature-title">负载均衡</h3>
+        <p class="feature-desc">动态负载均衡，自动分配请求到最优资源池，避免单点过载</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📦</div>
+        <h3 class="feature-title">弹性扩缩</h3>
+        <p class="feature-desc">基于流量波动的自动弹性伸缩，按需分配计算资源，成本最优化</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <h3 class="feature-title">API 集成</h3>
+        <p class="feature-desc">提供标准 RESTful API 与 SDK，轻松集成到您的现有应用架构中</p>
+      </div>
+    </div>
+  </section>
+
+  <footer id="footer" class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">◆ Nexus<span class="logo-accent">AI</span></div>
+        <p class="footer-desc">新一代 AI Tokens 分发基础设施，为智能应用提供源源不断的动力。</p>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">产品</h4>
+        <ul class="footer-links">
+          <li><a href="#">API 文档</a></li>
+          <li><a href="#">SDK 下载</a></li>
+          <li><a href="#">价格方案</a></li>
+          <li><a href="#">更新日志</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">支持</h4>
+        <ul class="footer-links">
+          <li><a href="#">帮助中心</a></li>
+          <li><a href="#">开发者社区</a></li>
+          <li><a href="#">服务状态</a></li>
+          <li><a href="#">联系我们</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4 class="footer-title">合作伙伴</h4>
+        <div class="partners">
+          <span class="partner-tag">OpenAI</span>
+          <span class="partner-tag">Anthropic</span>
+          <span class="partner-tag">Meta AI</span>
+          <span class="partner-tag">Google</span>
+          <span class="partner-tag">Microsoft</span>
+          <span class="partner-tag">AWS</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 NexusAI. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
