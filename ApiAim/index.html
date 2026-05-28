@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ApiAim - 大模型中转平台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0D1117;
+  color: #E6EDF3;
+  line-height: 1.6;
+  overflow-x: hidden;
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+body.loaded {
+  opacity: 1;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 700;
+}
+code {
+  font-family: "JetBrains Mono", monospace;
+}
+a {
+  color: #58A6FF;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+a:hover {
+  color: #79C0FF;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 80px;
+}
+.section-title {
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 16px;
+}
+.section-desc {
+  text-align: center;
+  color: #8B949E;
+  font-size: 16px;
+  max-width: 600px;
+  margin: 0 auto 48px;
+}
+.section {
+  padding: 80px 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0D1117; }
+::-webkit-scrollbar-thumb { background: #30363D; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #58A6FF; }
+
+/* Navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background: rgba(13, 17, 23, 0.85);
+  backdrop-filter: blur(16px) saturate(1.2);
+  -webkit-backdrop-filter: blur(16px) saturate(1.2);
+  border-bottom: 1px solid rgba(48, 54, 61, 0.4);
+  transition: all 0.4s ease;
+}
+.navbar.scrolled {
+  background: rgba(13, 17, 23, 0.97);
+  border-bottom-color: #30363D;
+  box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+}
+.navbar .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+.navbar .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #E6EDF3;
+  font-family: "SF Pro Display", -apple-system, sans-serif;
+}
+.logo-icon {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(102, 126, 234, 0.3);
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  list-style: none;
+}
+.nav-links a {
+  color: #8B949E;
+  font-size: 14px;
+  position: relative;
+  padding: 4px 0;
+  letter-spacing: 0.3px;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #667EEA, #764BA2, #58A6FF);
+  transition: width 0.35s ease;
+  border-radius: 1px;
+}
+.nav-links a:hover::after {
+  width: 100%;
+}
+.nav-links a:hover {
+  color: #E6EDF3;
+}
+.nav-buttons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  border: none;
+  font-family: inherit;
+  position: relative;
+  overflow: hidden;
+}
+.btn:hover {
+  transform: translateY(-2px);
+}
+.btn:active {
+  transform: translateY(0);
+}
+.btn-primary {
+  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+}
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.btn-primary:hover {
+  box-shadow: 0 8px 30px rgba(102, 126, 234, 0.45);
+  transform: translateY(-2px);
+}
+.btn-primary:hover::before {
+  opacity: 1;
+}
+.btn-ghost {
+  background: transparent;
+  color: #E6EDF3;
+  border: 1px solid #30363D;
+}
+.btn-ghost:hover {
+  border-color: #58A6FF;
+  background: rgba(88, 166, 255, 0.06);
+  box-shadow: 0 0 20px rgba(88, 166, 255, 0.08);
+}
+.btn-lg {
+  padding: 14px 36px;
+  font-size: 16px;
+  border-radius: 10px;
+}
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 16px;
+  font-size: 13px;
+  border: 1px solid #30363D;
+  border-radius: 8px;
+  color: #E6EDF3;
+  background: transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.btn-outline:hover {
+  border-color: #58A6FF;
+  background: rgba(88, 166, 255, 0.08);
+  color: #58A6FF;
+  transform: translateY(-2px);
+}
+.menu-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  color: #E6EDF3;
+}
+.menu-toggle svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Hero */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  padding-top: 64px;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Scan lines overlay */
+.hero-bg::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(88, 166, 255, 0.015) 2px,
+    rgba(88, 166, 255, 0.015) 4px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Grid pattern */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(88, 166, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(88, 166, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  transform: perspective(800px) rotateX(8deg);
+  transform-origin: center bottom;
+  opacity: 0.5;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Glow orbs */
+.hero-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+  transition: transform 0.1s ease-out;
+}
+.hero-glow-1 {
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(circle, #667EEA, transparent 70%);
+  top: -250px;
+  left: -150px;
+  animation: glowPulse1 6s ease-in-out infinite;
+}
+.hero-glow-2 {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, #764BA2, transparent 70%);
+  bottom: -200px;
+  right: -100px;
+  animation: glowPulse2 8s ease-in-out infinite;
+}
+.hero-glow-3 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #58A6FF, transparent 70%);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: glowPulse3 10s ease-in-out infinite;
+  opacity: 0.06;
+}
+
+@keyframes glowPulse1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, 30px) scale(1.05); }
+  66% { transform: translate(-20px, -40px) scale(0.95); }
+}
+@keyframes glowPulse2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(-30px, -20px) scale(1.08); }
+  66% { transform: translate(20px, 30px) scale(0.92); }
+}
+@keyframes glowPulse3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.06; }
+  50% { transform: translate(-50%, -50%) scale(1.3); opacity: 0.1; }
+}
+
+#particles-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 3;
+  max-width: 800px;
+  padding: 0 24px;
+}
+.hero h1 {
+  font-size: 56px;
+  line-height: 1.12;
+  margin-bottom: 20px;
+  background: linear-gradient(135deg, #E6EDF3 0%, #58A6FF 50%, #667EEA 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -1px;
+}
+.hero-sub {
+  font-size: 20px;
+  color: #8B949E;
+  margin-bottom: 40px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+.hero-badges {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  background: rgba(88, 166, 255, 0.08);
+  border: 1px solid rgba(88, 166, 255, 0.15);
+  color: #58A6FF;
+  backdrop-filter: blur(4px);
+}
+.hero-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3FB950;
+  animation: pulseDot 2s ease-in-out infinite;
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px #3FB950; }
+  50% { opacity: 0.4; box-shadow: 0 0 8px #3FB950; }
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Features */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+.feature-card {
+  background: linear-gradient(145deg, rgba(22, 27, 34, 0.8), rgba(13, 17, 23, 0.6));
+  backdrop-filter: blur(8px);
+  border: 1px solid #30363D;
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667EEA, #764BA2, #58A6FF);
+  transform: scaleX(0);
+  transition: transform 0.5s ease;
+  border-radius: 2px;
+}
+.feature-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(88, 166, 255, 0.06), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.feature-card:hover::before {
+  transform: scaleX(1);
+}
+.feature-card:hover::after {
+  opacity: 1;
+}
+.feature-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(88, 166, 255, 0.3);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.4);
+}
+.feature-icon {
+  width: 68px;
+  height: 68px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 30px;
+  position: relative;
+}
+.feature-icon::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  z-index: -1;
+  filter: blur(8px);
+}
+.feature-card h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.feature-card p {
+  font-size: 14px;
+  color: #8B949E;
+  line-height: 1.7;
+}
+
+/* Stats */
+.stats-section {
+  background: linear-gradient(180deg, #0D1117 0%, rgba(22, 27, 34, 0.5) 50%, #0D1117 100%);
+  border-top: 1px solid rgba(48, 54, 61, 0.4);
+  border-bottom: 1px solid rgba(48, 54, 61, 0.4);
+  position: relative;
+}
+.stats-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.15), transparent);
+}
+.stats-section::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.15), transparent);
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+}
+.stat-item {
+  text-align: center;
+  padding: 8px;
+  position: relative;
+}
+.stat-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  right: -16px;
+  top: 20%;
+  height: 60%;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, #30363D, transparent);
+}
+.stat-number {
+  font-size: 44px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667EEA 0%, #58A6FF 50%, #79C0FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
+  margin-bottom: 4px;
+  letter-spacing: -1px;
+}
+.stat-label {
+  font-size: 14px;
+  color: #8B949E;
+  letter-spacing: 0.5px;
+}
+.stat-suffix {
+  font-size: 20px;
+  background: linear-gradient(135deg, #667EEA 0%, #58A6FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Steps */
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  position: relative;
+}
+.steps-grid::before {
+  content: '';
+  position: absolute;
+  top: 40px;
+  left: calc(16.67% + 20px);
+  right: calc(16.67% + 20px);
+  height: 2px;
+  background: linear-gradient(90deg, #667EEA, #764BA2, #58A6FF);
+  opacity: 0.2;
+}
+.step-item {
+  text-align: center;
+  position: relative;
+}
+.step-number {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  margin: 0 auto 20px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+}
+.step-number::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(118, 75, 162, 0.2));
+  z-index: -1;
+  filter: blur(12px);
+}
+.step-item h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+.step-item p {
+  font-size: 14px;
+  color: #8B949E;
+  line-height: 1.7;
+}
+
+/* Footer */
+.footer {
+  border-top: 1px solid rgba(48, 54, 61, 0.4);
+  padding: 48px 0;
+  text-align: center;
+  position: relative;
+}
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(88, 166, 255, 0.15), transparent);
+}
+.footer-social {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.footer-social a {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #161B22;
+  border: 1px solid #30363D;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8B949E;
+  transition: all 0.35s ease;
+}
+.footer-social a:hover {
+  background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
+  color: #fff;
+  border-color: transparent;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.3);
+}
+.footer-copy {
+  font-size: 13px;
+  color: #8B949E;
+  letter-spacing: 0.3px;
+}
+
+/* Animations */
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-in-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-in-left {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-in-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+.fade-in-right {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.fade-in-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Divider ornaments */
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: -40px;
+  margin-bottom: 16px;
+}
+.divider-line {
+  width: 40px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #30363D);
+}
+.divider-line:last-child {
+  background: linear-gradient(90deg, #30363D, transparent);
+}
+.divider-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #58A6FF;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 40px;
+  }
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+  .stat-item:not(:last-child)::after {
+    display: none;
+  }
+  .hero h1 {
+    font-size: 42px;
+  }
+  .steps-grid::before {
+    display: none;
+  }
+  .hero-grid {
+    background-size: 40px 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 24px;
+  }
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    right: 0;
+    background: rgba(13, 17, 23, 0.98);
+    backdrop-filter: blur(16px);
+    flex-direction: column;
+    padding: 20px 24px;
+    gap: 16px;
+    border-bottom: 1px solid #30363D;
+  }
+  .nav-links.open {
+    display: flex;
+  }
+  .nav-buttons .btn-ghost {
+    display: none;
+  }
+  .menu-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero {
+    min-height: 90vh;
+  }
+  .hero h1 {
+    font-size: 32px;
+  }
+  .hero-sub {
+    font-size: 16px;
+  }
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+  .steps-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .section-title {
+    font-size: 28px;
+  }
+  .stat-number {
+    font-size: 32px;
+  }
+  .section {
+    padding: 48px 0;
+  }
+  .hero-grid {
+    background-size: 30px 30px;
+    opacity: 0.3;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 28px;
+  }
+  .btn-lg {
+    padding: 12px 28px;
+    font-size: 14px;
+  }
+  .hero-badges {
+    flex-direction: column;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="#" class="logo">
+      <span class="logo-icon">A</span>
+      <span>ApiAim</span>
+    </a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#features">功能</a></li>
+      <li><a href="#pricing">价格</a></li>
+      <li><a href="#docs">文档</a></li>
+      <li><a href="#about">关于</a></li>
+    </ul>
+    <div class="nav-buttons">
+      <a href="https://apiaim.com/sign-in" class="btn btn-ghost">登录</a>
+      <a href="https://apiaim.com/register" class="btn btn-primary">注册</a>
+      <button class="menu-toggle" id="menuToggle" aria-label="菜单">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="hero-glow hero-glow-1" id="glow1"></div>
+    <div class="hero-glow hero-glow-2" id="glow2"></div>
+    <div class="hero-glow hero-glow-3" id="glow3"></div>
+    <div class="hero-grid"></div>
+    <canvas id="particles-canvas"></canvas>
+  </div>
+  <div class="hero-content">
+    <div class="hero-badges">
+      <span class="hero-badge"><span class="dot"></span> 99.9% 可用率</span>
+      <span class="hero-badge">⚡ 毫秒级响应</span>
+      <span class="hero-badge">🔒 企业级安全</span>
+    </div>
+    <h1>大模型 API <br>智能中转分发平台</h1>
+    <p class="hero-sub">统一接入 OpenAI、Claude、Gemini 等主流大模型，<br>智能路由、弹性伸缩，让 AI 集成更简单</p>
+    <div class="hero-actions">
+      <a href="https://apiaim.com/register" class="btn btn-primary btn-lg">开始使用</a>
+      <a href="#features" class="btn btn-ghost btn-lg">了解更多</a>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section class="section" id="features">
+  <div class="container">
+    <h2 class="section-title fade-in">核心功能</h2>
+    <p class="section-desc fade-in">一站式大模型 API 管理平台，为开发者提供高效、稳定的 AI 服务接入体验</p>
+    <div class="features-grid">
+      <div class="feature-card fade-in-up" style="transition-delay:0.1s">
+        <div class="feature-icon">🔌</div>
+        <h3>多供应商支持</h3>
+        <p>支持 OpenAI / Claude / Gemini / 文心一言 / 通义千问 等主流大模型，统一接口调用，无需适配多套 SDK</p>
+      </div>
+      <div class="feature-card fade-in-up" style="transition-delay:0.2s">
+        <div class="feature-icon">🛣️</div>
+        <h3>智能路由</h3>
+        <p>基于延迟、可用性、成本的多维度智能调度，自动选择最优渠道，保障服务的高可用与低延迟</p>
+      </div>
+      <div class="feature-card fade-in-up" style="transition-delay:0.3s">
+        <div class="feature-icon">📊</div>
+        <h3>用量统计</h3>
+        <p>实时监控 Token 消耗与 API 调用量，提供多维度数据分析报表，助力成本优化与容量规划</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="section" id="pricing">
+  <div class="container">
+    <h2 class="section-title fade-in">价格体系</h2>
+    <p class="section-desc fade-in">灵活的计费方案满足不同规模团队需求</p>
+    
+    <!-- Pay-as-you-go -->
+    <div class="fade-in" style="margin-bottom: 64px;">
+      <h3 class="fade-in-up" style="transition-delay:0.1s">按量付费</h3>
+      <p class="fade-in-up" style="transition-delay:0.2s; margin-bottom: 32px;">根据实际Token消耗计费，支持主流大模型，无需预付费用</p>
+      <div class="pricing-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+        <div class="pricing-card fade-in-up" style="transition-delay:0.3s; border: 1px solid #30363D; border-radius: 16px; padding: 28px; background: rgba(22, 27, 34, 0.6); backdrop-filter: blur(4px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative;">
+          <div class="pricing-card:hover" style="transform: translateY(-4px); border-color: #58A6FF; box-shadow: 0 12px 32px rgba(0,0,0,0.4);">
+            <div class="pricing-title" style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #E6EDF3;">GPT-4o / Claude 3.5 Sonnet</div>
+            <div class="pricing-price" style="font-size: 32px; font-weight: 700; background: linear-gradient(135deg, #667EEA 0%, #58A6FF 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; line-height: 1.2;">¥15.00</div>
+            <div class="pricing-unit" style="font-size: 14px; color: #8B949E; margin-bottom: 20px;">/ 百万 Tokens</div>
+            <ul class="pricing-features" style="list-style: none; margin-bottom: 24px; padding-left: 0;">
+              <li class="fade-in-up" style="transition-delay:0.4s; margin-bottom: 8px; color: #8B949E; display: flex; align-items: center; gap: 8px;">
+                <span style="color: #3FB950;">✓</span> <span>实时计费</span>
+              </li>
+              <li class="fade-in-up" style="transition-delay:0.5s; margin-bottom: 8px; color: #8B949E; display: flex; align-items: center; gap: 8px;">
+                <span style="color: #3FB950;">✓</span> <span>支持流式响应</span>
+              </li>
+              <li class="fade-in-up" style="transition-delay:0.6s; margin-bottom: 8px; color: #8B949E; display: flex; align-items: center; gap: 8px;">
+                <span style="color: #3FB950;">✓</span> <span>99.9% 可用率 SLA</span>
+              </li>
+            </ul>
+            <a href="https://apiaim.com/register" class="btn btn-outline btn-sm fade-in-up" style="transition-delay:0.7s; display: inline-flex; align-items: center; padding: 8px 16px; font-size: 13px; border: 1px solid #30363D; border-radius: 8px; color: #E6EDF3; background: transparent;">开始使用</a>
+          </div>
+        </div>
+        
+        <div class="pricing-card fade-in-up" style="transition-delay:0.4s; border: 1px solid #30363D; border-radius: 16px; padding: 28px; background: rgba(22, 27, 34, 0.6); backdrop-filter: blur(4px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative;">
+          <div class="pricing-card:hover" style="transform: translateY(-4px); border-color: #58A6FF; box-shadow: 0 12px 32px rgba(0,0,0,0.4);">
+            <div class="pricing-title" style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #E6EDF3;">GPT-3.5 Turbo / Claude 3 Haiku</div>
+            <div class="pricing-price" style="font-size: 32px; font-weight: 700; background: linear-gradient(135deg, #667EEA 0%, #58A6FF 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; line-height: 1.2;">¥2.00</div>
+            <div class="pricing-unit" style="font-size: 14px; color: #8B949E; margin-bottom: 20px;">/ 百万 Tokens</div>
+            <ul class="pricing-features" style="list-style: none; margin-bottom: 24px; padding-left: 0;">
+              <li class="fade-in-up" style="transition-delay:0.4s; margin-bottom: 8px; color: #8B949E; display: flex; align-items: center; gap: 8px;">
+                <span style="color: #3FB950;">✓</span> <span>高性价比选择</span>
+              </li>
+              <li class="fade-in-up" style="transition-delay:0.5s; margin-bottom: 8px; color: #8B949E; display: flex; align-items: center; gap: 8px;">
+                <span style="color: #3FB950;">✓</span> <span>适合批处理任务</span>
+              </li>
+              <li class="fade-in-up" style="transition-delay:0.6s; margin-bottom: 8px; color: #8B949E; display: flex; align-items: center; gap: 8px;">
+                <span style="color: #3FB950;">✓</span> <span>低延迟响应</span>
+              </li>
+            </ul>
+            <a href="https://apiaim.com/register" class="btn btn-outline btn-sm fade-in-up" style="transition-delay:0.7s; display: inline-flex; align-items: center; padding: 8px 16px; font-size: 13px; border: 1px solid #30363D; border-radius: 8px; color: #E6EDF3; background: transparent;">开始使用</a>
+          </div>
+        </div>
+        
+        <div class="pricing-card fade-in-up" style="transition-delay:0.5s; border: 1px solid #30363D; border-radius: 16px; padding: 28px; background: rgba(22, 27, 34, 0.6); backdrop-filter: blur(4px); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); position: relative;">
+          <div class="pricing-card:hover" style="transform: translateY(-4px); border-color: #58A6FF; box-shadow: 0 12px 32px rgba(0,0,0,0.4);">
+            <div class="pricing-title" style="font-size: 20px; font-weight: 600; margin-bottom: 16px; color: #E6EDF3;">Embedding 模型</div>
+            <div class="pricing-price" style="font-size: 32px; font-weight: 700; background: linear-gradient(135deg, #667EEA 0%, #58A6FF 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; line-height: 1.2;">¥0.80</div>
+            <div class="pricing-unit" style="font-size: 14px; color: #8B949E; margin-bottom: 20px;">/ 百万 Tokens</div>
+            <ul class="pricing-features" style="list-style: none; margin-bottom: 24px; padding-left: 0;">
+              <li class="fade-in-up" style="transition-delay:0.4s; margin-bottom: 8px; color: #8B949E; display: flex; align-items: center; gap: 8px;">
+                <span style="color: #3FB950;">✓</span> <span>文本向量化</span>
+              </li>
+              <li class="fade-in-up" style="transition-delay:0.5s; margin-bottom: 8px; color: #8B949E; display: flex; align-items: center; gap: 8px;">
+                <span style="color: #3FB950;">✓</span> <span>支持多维度向量</span>
+              </li>
+              <li class="fade-in-up" style="transition-delay:0.6s; margin-bottom: 8px; color: #8B949E; display: flex; align-items: center; gap: 8px;">
+                <span style="color: #3FB950;">✓</span> <span>语义搜索优化</span>
+              </li>
+            </ul>
+            <a href="https://apiaim.com/register" class="btn btn-outline btn-sm fade-in-up" style="transition-delay:0.7s; display: inline-flex; align-items: center; padding: 8px 16px; font-size: 13px; border: 1px solid #30363D; border-radius: 8px; color: #E6EDF3; background: transparent;">开始使用</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Coding Plan -->
+    <div class="fade-in" style="margin-bottom: 48px;">
+      <h3 class="fade-in-up" style="transition-delay:0.1s">Coding Plan 订阅</h3>
+      <p class="fade-in-up" style="transition-delay:0.2s; margin-bottom: 32px;">专为 AI 开发工具设计的固定额度订阅方案，包含额外工具和优先支持</p>
+      <div class="coding-plan-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+        <!-- Lite Plan -->
+        <div class="plan-card fade-in-up" style="transition-delay:0.3s; border: 2px solid #30363D; border-radius: 20px; padding: 32px; background: linear-gradient(145deg, rgba(22, 27, 34, 0.8), rgba(13, 17, 23, 0.6)); position: relative; overflow: hidden;">
+          <div class="plan-badge" style="position: absolute; top: -10px; left: 20px; background: #3FB950; color: white; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;">热门</div>
+          <div class="plan-header" style="text-align: center; margin-bottom: 24px;">
+            <div class="plan-name" style="font-size: 24px; font-weight: 700; color: #E6EDF3; margin-bottom: 8px;">Coding Plan Lite</div>
+            <div class="plan-desc" style="font-size: 14px; color: #8B949E; margin-bottom: 16px;">个人开发者与初创者的入门首选，以极致性价比提供核心模型服务</div>
+          </div>
+          <div class="plan-price-wrapper" style="text-align: center; margin-bottom: 24px;">
+            <div class="plan-price" style="font-size: 48px; font-weight: 800; background: linear-gradient(135deg, #667EEA 0%, #58A6FF 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; display: inline-block;">
+              <span style="font-size: 24px; vertical-align: super; margin-right: 4px;">¥</span>7.9
+            </div>
+            <div class="plan-price-period" style="font-size: 16px; color: #8B949E;">/月</div>
+            <div class="plan-price-original" style="font-size: 14px; color: #8B949E; text-decoration: line-through; margin-top: 4px;">标准价 ¥40/月</div>
+          </div>
+          <div class="plan-features" style="margin-bottom: 28px;">
+            <div class="feature-item" style="display: flex; align-items: center; margin-bottom: 12px; color: #8B949E; font-size: 14px;">
+              <span style="color: #3FB950; margin-right: 8px;">✓</span>
+              <span>每 5 小时 最多约 1200 次请求</span>
+            </div>
+            <div class="feature-item" style="display: flex; align-items: center; margin-bottom: 12px; color: #8B949E; font-size: 14px;">
+              <span style="color: #3FB950; margin-right: 8px;">✓</span>
+              <span>每周 最多约 9000 次请请求</span>
+            </div>
+            <div class="feature-item" style="display: flex; align-items: center; margin-bottom: 12px; color: #8B949E; font-size: 14px;">
+              <span style="color: #3FB950; margin-right: 8px;">✓</span>
+              <span>每订阅月 最多约 18000 次请求</span>
+            </div>
+            <div class="feature-item" style="display: flex; align-items: center; margin-bottom: 12px; color: #8B949E; font-size: 14px;">
+              <span style="color: #3FB950; margin-right: 8px;">✓</span>
+              <span>支持 Minimax-M2.5</span>
+            </div>
+            <div class="feature-item" style="display: flex; align-items: center; margin-bottom: 12px; color: #8B949E; font-size: 14px;">
+              <span style="color: #3FB950; margin-right: 8px;">✓</span>
+              <span>适配 ClaudeCode、OpenCode、OpenClaw 等 AI 开发工具</span>
+            </div>
+          </div>
+          <div class="plan-action" style="text-align: center;">
+            <a href="https://apiaim.com/register" class="btn btn-primary btn-lg fade-in-up" style="transition-delay:0.4s; width: 100%; max-width: 280px;">立即订购</a>
+          </div>
+        </div>
+        
+        <!-- Pro Plan -->
+        <div class="plan-card fade-in-up" style="transition-delay:0.4s; border: 2px solid #58A6FF; border-radius: 20px; padding: 32px; background: linear-gradient(145deg, rgba(22, 27, 34, 0.8), rgba(13, 17, 23, 0.6)); position: relative; overflow: hidden;">
+          <div class="plan-badge" style="position: absolute; top: -10px; right: 20px; background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); color: white; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 12px; text-transform: uppercase; letter-spacing: 0.5px;">专业</div>
+          <div class="plan-header" style="text-align: center; margin-bottom: 24px;">
+            <div class="plan-name" style="font-size: 24px; font-weight: 700; color: #E6EDF3; margin-bottom: 8px;">Coding Plan Pro</div>
+            <div class="plan-desc" style="font-size: 14px; color: #8B949E; margin-bottom: 16px;">专业团队的全栈效能引擎，专为复杂代码重构、企业级部署及高并发生产场景打造。</div>
+          </div>
+          <div class="plan-price-wrapper" style="text-align: center; margin-bottom: 24px;">
+            <div class="plan-price" style="font-size: 48px; font-weight: 800; background: linear-gradient(135deg, #667EEA 0%, #58A6FF 100%); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; line-height: 1; display: inline-block;">
+              <span style="font-size: 24px; vertical-align: super; margin-right: 4px;">¥</span>39.9
+            </div>
+            <div class="plan-price-period" style="font-size: 16px; color: #8B949E;">/月</div>
+            <div class="plan-price-original" style="font-size: 14px; color: #8B949E; text-decoration: line-through; margin-top: 4px;">标准价 ¥200/月</div>
+          </div>
+          <div class="plan-features" style="margin-bottom: 28px;">
+            <div class="feature-item" style="display: flex; align-items: center; margin-bottom: 12px; color: #8B949E; font-size: 14px;">
+              <span style="color: #3FB950; margin-right: 8px;">✓</span>
+              <span>每 5 小时 最多约 6000 次请求</span>
+            </div>
+            <div class="feature-item" style="display: flex; align-items: center; margin-bottom: 12px; color: #8B949E; font-size: 14px;">
+              <span style="color: #3FB950; margin-right: 8px;">✓</span>
+              <span>每周 最多约 45000 次请求</span>
+            </div>
+            <div class="feature-item" style="display: flex; align-items: center; margin-bottom: 12px; color: #8B949E; font-size: 14px;">
+              <span style="color: #3FB950; margin-right: 8px;">✓</span>
+              <span>每订阅月 最多约 90000 次请求</span>
+            </div>
+            <div class="feature-item" style="display: flex; align-items: center; margin-bottom: 12px; color: #8B949E; font-size: 14px;">
+              <span style="color: #3FB950; margin-right: 8px;">✓</span>
+              <span>支持 Minimax-M2.5</span>
+            </div>
+            <div class="feature-item" style="display: flex; align-items: center; margin-bottom: 12px; color: #8B949E; font-size: 14px;">
+              <span style="color: #3FB950; margin-right: 8px;">✓</span>
+              <span>适配 ClaudeCode、OpenCode、OpenClaw 等 AI 开发工具</span>
+            </div>
+          </div>
+          <div class="plan-action" style="text-align: center;">
+            <a href="https://apiaim.com/register" class="btn btn-primary btn-lg fade-in-up" style="transition-delay:0.5s; width: 100%; max-width: 280px;">立即订购</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats -->
+<section class="section stats-section" id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item fade-in">
+        <div class="stat-number"><span id="statRequests">0</span><span class="stat-suffix">+</span></div>
+        <div class="stat-label">总请求数</div>
+      </div>
+      <div class="stat-item fade-in" style="transition-delay:0.1s">
+        <div class="stat-number"><span id="statUsers">0</span><span class="stat-suffix">+</span></div>
+        <div class="stat-label">活跃用户</div>
+      </div>
+      <div class="stat-item fade-in" style="transition-delay:0.2s">
+        <div class="stat-number"><span id="statSavings">0</span><span class="stat-suffix">%</span></div>
+        <div class="stat-label">节省成本</div>
+      </div>
+      <div class="stat-item fade-in" style="transition-delay:0.3s">
+        <div class="stat-number"><span id="statChannels">0</span><span class="stat-suffix">+</span></div>
+        <div class="stat-label">在线渠道</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Steps -->
+<section class="section" id="steps">
+  <div class="container">
+    <h2 class="section-title fade-in">快速开始</h2>
+    <p class="section-desc fade-in">三步完成接入，即刻体验 AI 服务</p>
+    <div class="steps-grid">
+      <div class="step-item fade-in-up" style="transition-delay:0.1s">
+        <div class="step-number">1</div>
+        <h3>注册账号</h3>
+        <p>在 ApiAim 平台注册开发者账号，获取专属 API Token</p>
+      </div>
+      <div class="step-item fade-in-up" style="transition-delay:0.2s">
+        <div class="step-number">2</div>
+        <h3>添加 API Key</h3>
+        <p>在控制台配置各供应商的 API Key，平台自动完成负载均衡</p>
+      </div>
+      <div class="step-item fade-in-up" style="transition-delay:0.3s">
+        <div class="step-number">3</div>
+        <h3>开始调用</h3>
+        <p>通过标准 OpenAI SDK 即可调用，享受智能路由与用量监控</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer" id="footer">
+  <div class="container">
+    <div class="footer-social">
+      <a href="https://github.com" aria-label="GitHub" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      </a>
+      <a href="https://twitter.com" aria-label="Twitter" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+      <a href="https://discord.com" aria-label="Discord" target="_blank" rel="noopener">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.79 19.79 0 00-4.885-1.515.074.074 0 00-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 00-5.487 0 12.64 12.64 0 00-.617-1.25.077.077 0 00-.079-.037A19.736 19.736 0 003.677 4.37a.07.07 0 00-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 00.031.057 19.9 19.9 0 005.993 3.03.078.078 0 00.084-.028 14.09 14.09 0 001.226-1.994.076.076 0 00-.041-.106 13.107 13.107 0 01-1.872-.892.077.077 0 01-.008-.128 10.2 10.2 0 00.372-.292.074.074 0 01.077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 01.078.01c.12.098.246.198.373.292a.077.077 0 01-.006.127 12.299 12.299 0 01-1.873.892.077.077 0 00-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 00.084.028 19.839 19.839 0 006.002-3.03.077.077 0 00.032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 00-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+      </a>
+    </div>
+    <p class="footer-copy">&copy; 2026 ApiAim. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('load', () => {
+  document.body.classList.add('loaded');
+  initHeroScene();
+});
+
+// Mobile menu
+const menuToggle = document.getElementById('menuToggle');
+const navLinks = document.getElementById('navLinks');
+menuToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('open');
+});
+navLinks.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => navLinks.classList.remove('open'));
+});
+
+// Navbar scroll
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 50);
+});
+
+// Intersection Observer for scroll animations
+document.querySelectorAll('.fade-in, .fade-in-up, .fade-in-left, .fade-in-right').forEach(el => {
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        obs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+  obs.observe(el);
+});
+
+// Card mouse tracking for glow effect
+document.querySelectorAll('.feature-card').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    card.style.setProperty('--mouse-x', x + '%');
+    card.style.setProperty('--mouse-y', y + '%');
+  });
+});
+
+// Number counting animation
+function animateNumber(el, target) {
+  const duration = 2000;
+  const start = performance.now();
+  function update(now) {
+    const t = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.floor(eased * target).toLocaleString();
+    if (t < 1) requestAnimationFrame(update);
+  }
+  requestAnimationFrame(update);
+}
+
+const statsSection = document.getElementById('stats');
+new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animateNumber(document.getElementById('statRequests'), 15800000);
+      animateNumber(document.getElementById('statUsers'), 12800);
+      animateNumber(document.getElementById('statSavings'), 47);
+      animateNumber(document.getElementById('statChannels'), 86);
+      entry.target._observed = true;
+    }
+  });
+}, { threshold: 0.5 }).observe(statsSection);
+
+// ============================================================
+// Hero 3D Scene
+// ============================================================
+function initHeroScene() {
+  const canvas = document.getElementById('particles-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const glow1 = document.getElementById('glow1');
+  const glow2 = document.getElementById('glow2');
+  const glow3 = document.getElementById('glow3');
+
+  let W, H, cx, cy;
+  const mouse = { x: 0, y: 0, px: 0, py: 0 };
+  const focal = 800;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+    cx = W / 2;
+    cy = H / 2;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  // Mouse tracking with smooth interpolation
+  document.addEventListener('mousemove', (e) => {
+    mouse.px = (e.clientX / W - 0.5) * 2;
+    mouse.py = (e.clientY / H - 0.5) * 2;
+  });
+  document.addEventListener('touchmove', (e) => {
+    const t = e.touches[0];
+    mouse.px = (t.clientX / W - 0.5) * 2;
+    mouse.py = (t.clientY / H - 0.5) * 2;
+  }, { passive: true });
+
+  // --- 3D Particles ---
+  const PARTICLE_COUNT = 160;
+  const particles = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: (Math.random() - 0.5) * 2400,
+      y: (Math.random() - 0.5) * 1600,
+      z: Math.random() * 2000,
+      vx: (Math.random() - 0.5) * 0.15,
+      vy: (Math.random() - 0.5) * 0.15,
+      vz: (Math.random() - 0.5) * 0.08,
+      size: 0.8 + Math.random() * 2.2,
+      hue: 220 + Math.random() * 40
+    });
+  }
+
+  // --- Floating Hexagons ---
+  function createHexagon() {
+    return {
+      x: (Math.random() - 0.5) * 1800,
+      y: (Math.random() - 0.5) * 1200,
+      z: 300 + Math.random() * 1200,
+      radius: 20 + Math.random() * 50,
+      rotation: Math.random() * Math.PI * 2,
+      rotSpeed: (Math.random() - 0.5) * 0.004,
+      driftX: (Math.random() - 0.5) * 0.15,
+      driftY: (Math.random() - 0.5) * 0.15,
+      opacity: 0.15 + Math.random() * 0.2
+    };
+  }
+  const hexagons = Array.from({ length: 6 }, () => createHexagon());
+
+  function project(p) {
+    const s = focal / (focal + p.z);
+    return { x: p.x * s + cx, y: p.y * s + cy, s: s };
+  }
+
+  // --- Draw hexagon path ---
+  function hexPath(ctx, cx_, cy_, r, rot) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const angle = rot + (Math.PI / 3) * i - Math.PI / 6;
+      const px = cx_ + r * Math.cos(angle);
+      const py = cy_ + r * Math.sin(angle);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+  }
+
+  let time = 0;
+
+  function draw() {
+    time += 0.005;
+    ctx.clearRect(0, 0, W, H);
+
+    // Smooth mouse
+    mouse.x += (mouse.px - mouse.x) * 0.05;
+    mouse.y += (mouse.py - mouse.y) * 0.05;
+
+    // Update glow positions
+    if (glow1) glow1.style.transform = `translate(${mouse.x * 20}px, ${mouse.y * 15}px)`;
+    if (glow2) glow2.style.transform = `translate(${mouse.x * -15}px, ${mouse.y * -10}px)`;
+    if (glow3) glow3.style.transform = `translate(${mouse.x * 10}px, ${mouse.y * -8}px)`;
+
+    // Mouse offset for scene
+    const mx = mouse.x * 40;
+    const my = mouse.y * 25;
+
+    // --- Draw hexagons ---
+    const sortedHex = [...hexagons].sort((a, b) => a.z - b.z);
+    for (const h of sortedHex) {
+      h.x += h.driftX + mouse.x * 0.05;
+      h.y += h.driftY + mouse.y * 0.03;
+      h.rotation += h.rotSpeed;
+      // Wrap
+      if (Math.abs(h.x) > 1200) h.driftX *= -1;
+      if (Math.abs(h.y) > 800) h.driftY *= -1;
+
+      const pp = project({ x: h.x + mx, y: h.y + my, z: h.z });
+      if (pp.s < 0.05) continue;
+      const r = h.radius * pp.s;
+
+      ctx.save();
+      ctx.translate(pp.x, pp.y);
+      hexPath(ctx, 0, 0, r, h.rotation);
+
+      ctx.strokeStyle = `rgba(88, 166, 255, ${h.opacity * pp.s * 0.8})`;
+      ctx.lineWidth = 1.2 * pp.s;
+      ctx.stroke();
+
+      // Subtle inner glow
+      ctx.strokeStyle = `rgba(102, 126, 234, ${h.opacity * pp.s * 0.3})`;
+      ctx.lineWidth = 0.6 * pp.s;
+      hexPath(ctx, 0, 0, r * 0.85, h.rotation);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // --- Draw 3D particles ---
+    for (const p of particles) {
+      p.x += p.vx + mouse.x * 0.03;
+      p.y += p.vy + mouse.y * 0.02;
+      p.z += p.vz;
+      if (p.z < 0) p.z = 2000;
+      if (p.z > 2000) p.z = 0;
+      if (Math.abs(p.x) > 1400) p.vx *= -1;
+      if (Math.abs(p.y) > 1000) p.vy *= -1;
+    }
+
+    // Project all particles
+    const projected = particles.map(p => {
+      const pp = project({ x: p.x + mx, y: p.y + my, z: p.z });
+      return { ...pp, size: p.size, hue: p.hue, orig: p };
+    });
+
+    // Draw connections (3D distance based)
+    ctx.lineWidth = 0.4;
+    for (let i = 0; i < projected.length; i++) {
+      for (let j = i + 1; j < projected.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dz = particles[i].z - particles[j].z;
+        const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
+        if (dist < 250) {
+          const alpha = 0.12 * (1 - dist / 250) * projected[i].s * projected[j].s;
+          ctx.beginPath();
+          ctx.moveTo(projected[i].x, projected[i].y);
+          ctx.lineTo(projected[j].x, projected[j].y);
+          ctx.strokeStyle = `rgba(88, 166, 255, ${alpha})`;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw particle dots
+    for (const p of projected) {
+      const alpha = Math.min(p.s * 1.2, 1);
+      const r = p.size * p.s;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, Math.max(r, 0.3), 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(88, 166, 255, ${alpha * 0.7})`;
+      ctx.fill();
+
+      // Glow core for nearer particles
+      if (p.s > 0.4) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, r * 2.5, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(102, 126, 234, ${alpha * 0.12})`;
+        ctx.fill();
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+</script>
+</body>
+</html>
