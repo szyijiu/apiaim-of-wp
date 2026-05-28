@@ -2,22 +2,21 @@
 /**
  * Plugin Name: ApiAim of wp
  * Description: 同步 WooCommerce 订单到 ApiAim 主站
- * Version: 1.0.3
+ * Version: 1.0.4
  * Author: ApiAim
  * Text Domain: apiaim-wp
  */
 
 if (!defined('ABSPATH')) exit;
 
-define('APIAIM_WP_VERSION', '1.0.3');
+define('APIAIM_WP_VERSION', '1.0.4');
 define('APIAIM_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
 require_once APIAIM_WP_PLUGIN_DIR . 'lib/plugin-update-checker.php';
 add_action('init', function() {
     $updateChecker = YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
         'https://github.com/szyijiu/apiaim-of-wp',
-        __FILE__,
-        'apiaim-wp'
+        __FILE__
     );
 });
 
