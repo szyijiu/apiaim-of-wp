@@ -12,6 +12,21 @@ if (!defined('ABSPATH')) exit;
 define('APIAIM_WP_VERSION', '1.0.8');
 define('APIAIM_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
 
+// Try to migrate active_plugins entry from old folder name (apiaim-of-wp) to this folder
+add_action('plugins_loaded', function() {
+    $expected = plugin_basename(__FILE__);
+    $active = get_option('active_plugins', []);
+    $old_entries = ['apiaim-of-wp/apiaim-of-wp.php', 'aigogogo-apiaim-sync/aigogogo-apiaim-sync.php'];
+    $changed = false;
+    foreach ($active as &$p) {
+        if (in_array($p, $old_entries) && $p !== $expected) {
+            $p = $expected;
+            $changed = true;
+        }
+    }
+    if ($changed) update_option('active_plugins', $active);
+});
+
 $puc_file = APIAIM_WP_PLUGIN_DIR . 'lib/plugin-update-checker.php';
 if (file_exists($puc_file)) {
     require_once $puc_file;
