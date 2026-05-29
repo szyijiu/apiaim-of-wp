@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ApiAim of wp
  * Description: 同步 WooCommerce 订单到 ApiAim 主站
- * Version: 1.0.9
+ * Version: 1.1.0
  * Author: ApiAim
  * Text Domain: apiaim-wp
  */
