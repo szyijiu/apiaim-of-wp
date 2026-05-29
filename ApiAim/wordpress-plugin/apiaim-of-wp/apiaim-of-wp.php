@@ -1,10 +1,19 @@
 <?php
 /**
  * Plugin Name: ApiAim of wp
- * Description: 同步 WooCommerce 订单到 ApiAim 主站
+ * Plugin URI: https://github.com/szyijiu/apiaim-of-wp
+ * Description: Sync WooCommerce orders to ApiAim — supports balance topups, subscription plan activation, and redemption code delivery.
  * Version: 1.1.0
+ * Requires at least: 5.8
+ * Requires PHP: 7.4
  * Author: ApiAim
+ * Author URI: https://apiaim.com
+ * License: GPLv2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: apiaim-wp
+ * Domain Path: /languages
+ * WC requires at least: 6.0
+ * WC tested up to: 9.4
  */
 
 if (!defined('ABSPATH')) exit;
