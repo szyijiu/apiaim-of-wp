@@ -10,7 +10,7 @@ class Apiaim_Wp_Client {
 
     public function __construct() {
         $this->base_url = get_option('apiaim_api_url', 'https://apiaim.com');
-        $this->api_key = get_option('apiaim_api_key', '');
+        $this->api_key = defined('APIAIM_API_KEY') ? APIAIM_API_KEY : get_option('apiaim_api_key', '');
         $this->timeout = (int) get_option('apiaim_timeout', 30);
     }
 
@@ -31,11 +31,11 @@ class Apiaim_Wp_Client {
     }
 
     public function ping() {
-        return $this->request('GET', '/api/v1/proxy/ping');
+        return $this->request('GET', '/api/v1/proxy/ping', null, false);
     }
 
-    private function request($method, $endpoint, $data = null) {
-        if (empty($this->api_key)) {
+    private function request($method, $endpoint, $data = null, $require_auth = true) {
+        if ($require_auth && empty($this->api_key)) {
             return ['success' => false, 'code' => 40100, 'message' => 'API密钥未配置'];
         }
 
@@ -54,6 +54,10 @@ class Apiaim_Wp_Client {
 
         if ($data && $method === 'POST') {
             $args['body'] = wp_json_encode($data);
+        }
+
+        if (!$require_auth) {
+            unset($args['headers']['Authorization']);
         }
 
         $response = wp_remote_request($url, $args);

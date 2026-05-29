@@ -29,6 +29,8 @@ class Apiaim_Wp_Admin_Settings {
         ?>
         <div class="wrap">
             <h1>ApiAim 同步设置</h1>
+            <?php $api_key_const = defined('APIAIM_API_KEY'); ?>
+
             <form method="post" action="options.php">
                 <?php settings_fields('apiaim_wp_settings'); ?>
 
@@ -43,8 +45,12 @@ class Apiaim_Wp_Admin_Settings {
                     <tr>
                         <th scope="row">API 密钥</th>
                         <td>
-                            <input type="password" name="apiaim_api_key" value="<?php echo esc_attr(get_option('apiaim_api_key', '')); ?>" class="regular-text" />
-                            <p class="description">从 ApiAim 主站获取的 API 密钥</p>
+                            <input type="password" name="apiaim_api_key" value="<?php echo $api_key_const ? '' : esc_attr(get_option('apiaim_api_key', '')); ?>" class="regular-text" <?php echo $api_key_const ? 'disabled' : ''; ?> />
+                            <?php if ($api_key_const): ?>
+                                <p class="description" style="color: green;">已在 wp-config.php 中设置 APIAIM_API_KEY 常量</p>
+                            <?php else: ?>
+                                <p class="description">从 ApiAim 主站获取的 API 密钥（也可在 wp-config.php 中定义 APIAIM_API_KEY 常量）</p>
+                            <?php endif; ?>
                         </td>
                     </tr>
                     <tr>
@@ -85,7 +91,7 @@ class Apiaim_Wp_Admin_Settings {
                 result.text('测试中...');
 
                 jQuery.ajax({
-                    url: '<?php echo admin_url('admin-ajax.php', 'admin'); ?>',
+                    url: '<?php echo admin_url('admin-ajax.php', 'https'); ?>',
                     type: 'POST',
                     data: {
                         action: 'apiaim_ping_test'

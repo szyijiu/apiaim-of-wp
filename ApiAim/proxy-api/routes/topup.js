@@ -61,8 +61,24 @@ module.exports = function(pool) {
 
       // 根据套餐类型执行不同操作
       let action, amountAdded, newBalance, quotaGranted, expiresAt, transactionId;
+      let redemptionCode;
 
-      // 记录订单
+      // 先验证 SKU 合法性（Fix Bug 2 & 3）
+      if (cleanSku.startsWith('topup_')) {
+        const amountStr = cleanSku.replace('topup_', '');
+        const parsedAmount = parseFloat(amountStr);
+        if (isNaN(parsedAmount) || parsedAmount <= 0) {
+          return res.json({ success: false, code: 40001, message: '套餐SKU不存在' });
+        }
+      } else if (cleanSku.startsWith('coding_plan_')) {
+        if (cleanSku !== 'coding_plan_lite' && cleanSku !== 'coding_plan_pro') {
+          return res.json({ success: false, code: 40001, message: '套餐SKU不存在' });
+        }
+      } else if (cleanSku !== 'redemption_code') {
+        return res.json({ success: false, code: 40001, message: '套餐SKU不存在' });
+      }
+
+      // 记录订单（SKU 已验证通过后才入库）
       await pool.query(
         'INSERT INTO orders (user_id, order_id, package_sku, amount, currency, status, created_time) VALUES (?, ?, ?, ?, ?, 1, UNIX_TIMESTAMP())',
         [userId, cleanOrderId, cleanSku, amount, currency]
@@ -103,7 +119,7 @@ module.exports = function(pool) {
 
         // 检查是否有未过期的同类型套餐
         const [existingPlan] = await pool.query(
-          'SELECT id, quota_used, expired_time FROM subscriptions WHERE user_id = ? AND plan_type = ? AND expired_time > UNIX_TIMESTAMP() LIMIT 1',
+          'SELECT id, quota_used, expired_time FROM subscriptions WHERE user_id = ? AND plan_type = ? AND expired_time >= UNIX_TIMESTAMP() LIMIT 1',
           [userId, planType]
         );
 
@@ -141,22 +157,15 @@ module.exports = function(pool) {
         expiresAt = null;
 
         // 生成兑换码
-        const code = 'APIA-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' +
+        redemptionCode = 'APIA-' + Math.random().toString(36).substring(2, 6).toUpperCase() + '-' +
                      Math.random().toString(36).substring(2, 6).toUpperCase() + '-' +
                      Math.random().toString(36).substring(2, 6).toUpperCase();
 
         await pool.query(
           'INSERT INTO redemption_codes (user_id, code, status, created_time) VALUES (?, ?, 0, UNIX_TIMESTAMP())',
-          [userId, code]
+          [userId, redemptionCode]
         );
 
-      } else {
-        // 未知套餐
-        await pool.query(
-          'UPDATE orders SET status = -1 WHERE order_id = ?',
-          [cleanOrderId]
-        );
-        return res.json({ success: false, code: 40001, message: '套餐SKU不存在' });
       }
 
       // 生成交易ID
@@ -182,7 +191,7 @@ module.exports = function(pool) {
 
       // 如果是兑换码，添加到响应
       if (action === 'redemption_code') {
-        responseData.redemption_code = code;
+        responseData.redemption_code = redemptionCode;
       }
 
       res.json({

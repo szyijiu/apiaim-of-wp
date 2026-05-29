@@ -1,6 +1,6 @@
 {
   "name": "apiaim-proxy-api",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "ApiAim Proxy API for aigogogo.net integration",
   "main": "server.js",
   "scripts": {

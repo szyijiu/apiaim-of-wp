@@ -1,4 +1,12 @@
+const crypto = require('crypto');
 const config = require('../config');
+
+// 定时安全字符串比较
+function safeCompare(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 // API Key 认证中间件
 function apiKeyAuth(req, res, next) {
@@ -12,8 +20,7 @@ function apiKeyAuth(req, res, next) {
   }
 
   const token = authHeader.slice(7);
-  if (!token || token !== config.apiKey) {
-    // 不要暴露具体错误原因
+  if (!token || !safeCompare(token, config.apiKey)) {
     return res.status(401).json({
       success: false,
       code: 40100,

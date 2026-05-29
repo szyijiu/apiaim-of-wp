@@ -9,21 +9,37 @@
 
 if (!defined('ABSPATH')) exit;
 
-define('APIAIM_WP_VERSION', '1.0.9');
-define('APIAIM_WP_PLUGIN_DIR', plugin_dir_path(__FILE__));
+define('APIAIM_WP_VERSION', '1.1.0');
 
+// Detect plugin root directory. Supports both:
+//   - Subdirectory install: wp-content/plugins/apiaim-of-wp/apiaim-of-wp.php
+//   - Flat-file install (legacy): wp-content/plugins/apiaim-of-wp.php
+$plugin_root = dirname(__FILE__);
+if (!file_exists($plugin_root . '/includes/class-admin-settings.php')) {
+    $alt = WP_PLUGIN_DIR . '/apiaim-of-wp';
+    if (file_exists($alt . '/includes/class-admin-settings.php')) {
+        $plugin_root = $alt;
+    }
+}
+define('APIAIM_WP_PLUGIN_DIR', trailingslashit($plugin_root));
+
+// Ensure the correct plugin basename is stored in active_plugins option.
+// Handles three scenarios:
+//   1. Migration from old plugin name aigogogo-apiaim-sync/aigogogo-apiaim-sync.php
+//   2. Recovery from flat-file basename apiaim-of-wp.php (wrong zip structure)
+//   3. Normal install with correct subdirectory basename apiaim-of-wp/apiaim-of-wp.php
 add_action('plugins_loaded', function() {
     $expected = plugin_basename(__FILE__);
+    $wrong = ['aigogogo-apiaim-sync/aigogogo-apiaim-sync.php', 'apiaim-of-wp.php'];
     $active = get_option('active_plugins', []);
-    $old_entries = ['aigogogo-apiaim-sync/aigogogo-apiaim-sync.php'];
     $changed = false;
-    foreach ($active as &$p) {
-        if (in_array($p, $old_entries) && $p !== $expected) {
-            $p = $expected;
+    foreach ($active as $i => $p) {
+        if (in_array($p, $wrong) && $p !== $expected) {
+            $active[$i] = $expected;
             $changed = true;
         }
     }
-    unset($p);
+    unset($i, $p);
     if ($changed) update_option('active_plugins', $active);
 });
 
@@ -64,7 +80,11 @@ add_filter('cron_schedules', function($schedules) {
 $inc_files = ['class-api-client.php', 'class-order-handler.php', 'class-admin-settings.php', 'class-sync-queue.php'];
 foreach ($inc_files as $f) {
     $path = APIAIM_WP_PLUGIN_DIR . 'includes/' . $f;
-    if (file_exists($path)) require_once $path;
+    if (file_exists($path)) {
+        require_once $path;
+    } else {
+        error_log('[ApiAim WP] Failed to load ' . $f . ' from ' . $path . ' (plugin_root=' . $plugin_root . ')');
+    }
 }
 
 register_activation_hook(__FILE__, ['Apiaim_Wp_Order_Handler', 'activate']);
